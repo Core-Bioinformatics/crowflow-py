@@ -1,0 +1,4 @@
+.venv
+crow.egg-info
+build
+examples/data
