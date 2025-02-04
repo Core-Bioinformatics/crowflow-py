@@ -38,9 +38,9 @@ pip install crow
 
 The package can be applied to any clustering task (as long as the clustering algorithm used is stochastic). 
 
-In the [cuomo example](examples/cuomo.ipynb) we show how to use `crow` with GaussianMixture from `scikit-learn` to initially assess clustering stability of the default parameter values. We then attempt to identify a clustering configuration (hyperparameter values) that would result in more stable clustering results and finally further optimise that configuration by feature selection. 
+In the [cuomo example](examples/cuomo_application.ipynb) we show how to use `crow` with GaussianMixture from `scikit-learn` to initially assess clustering stability of the default parameter values. We then attempt to identify a clustering configuration (hyperparameter values) that would result in more stable clustering results and finally further optimise that configuration by feature selection. 
 
-The [fine food reviews example](examples/cuomo.ipynb) shows how to integrate cutting-edge models (embedding, 4o-mini) from OpenAI and KMeans from `scikit-learn` with `crow`to extract meaningful insights from the identified robust clusters, and generate informative labels based on these insights.
+The [fine food reviews example](examples/fine_food_reviews.ipynb) shows how to integrate cutting-edge models (embedding, 4o-mini) from OpenAI and KMeans from `scikit-learn` with `crow`to extract meaningful insights from the identified robust clusters, and generate informative labels based on these insights.
 
 ## License
 
