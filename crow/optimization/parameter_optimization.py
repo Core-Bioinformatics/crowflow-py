@@ -7,23 +7,42 @@ import inspect
 
 class ParameterOptimizer:
     """
-    Optimize selected parameters of a stochastic clustering algorithm. Optimizes each parameter
-    separately.
+    Optimizes individual hyperparameters of a stochastic clustering algorithm.
+
+    This class systematically tunes each hyperparameter separately by performing
+    repeated clustering and evaluating stability using Element-Centric Consistency (ECC).
+    It's purpose is to help identify the value of each parameter that maximizes clustering robustness.
 
     Parameters
     ----------
     clustering_algo : callable
-        Clustering function or class (e.g. KMeans from scikit-learn).
+        Clustering function or class (e.g., KMeans from scikit-learn).
     parameter_name_seed : str
-        Parameter used to set the seed.
+        Name of the parameter used to set the random seed.
     parameters_optimize_dict : dict
-        Dict of {parameter_name: [values]} to try.
+        Dictionary specifying the parameters and their candidate values,
+        e.g., {'n_clusters': [2, 3, 4]}.
     n_runs : int, optional (default=30)
-        Number of runs for each parameter setting.
+        Number of clustering runs per parameter setting.
     verbose : bool, optional (default=False)
-        Print progress if True.
+        If True, prints progress updates.
     **kwargs :
         Additional parameters for the clustering algorithm.
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import numpy as np
+    >>> from sklearn.cluster import KMeans
+    >>> np.random.seed(42)
+    >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
+    >>> parameter_optimizer = ParameterOptimizer(
+    >>>     clustering_algo=KMeans,
+    >>>     parameter_name_seed='random_state',
+    >>>     parameters_optimize_dict={'n_clusters': np.arange(2, 5, 1)},
+    >>>     n_runs=30
+    >>> )
+    >>> results_df, scr_results = parameter_optimizer.run(df)
     """
 
     def __init__(
@@ -57,34 +76,21 @@ class ParameterOptimizer:
 
     def run(self, data):
         """
-        Run the parameter optimization process on the given data.
+        Runs parameter optimization by evaluating ECC for each candidate value.
 
         Parameters
         ----------
         data : array-like
-            The dataset on which the optimization is performed.
+            The dataset on which clustering is performed.
 
         Returns
         -------
         pd.DataFrame
-            Each row represents the parameter and value combination along with the resulting element-centric consistency (ECC) scores and median ECC.
+            A DataFrame where each row represents a parameter-value combination
+            along with ECC scores and the median ECC.
         dict
-            Dictionary containing the (StochasticClusteringRunner) results for each parameter and value tested.
-
-        Example
-        -------
-        >>> import pandas as pd
-        >>> import numpy as np
-        >>> from sklearn.cluster import KMeans
-        >>> np.random.seed(42)
-        >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
-        >>> parameter_optimizer = ParameterOptimizer(
-        >>>     clustering_algo=KMeans,
-        >>>     parameter_name_seed='random_state',
-        >>>     parameters_optimize_dict={'n_clusters': np.arange(2, 5, 1)},
-        >>>     n_runs=30
-        >>> )
-        >>> results_df, scr_results = parameter_optimizer.run(df)
+            A dictionary containing clustering results (`StochasticClusteringRunner`)
+            for each parameter setting.
         """
         ecc_results = []
         stochastic_clustering_results = {}
@@ -126,23 +132,47 @@ class ParameterOptimizer:
 
 class ParameterSearcher:
     """
-    Parameter grid search using repeated stochastic clustering. Find optimal combinations of
-    parameter values.
+    Performs a full grid search over multiple clustering hyperparameters.
+
+    This class evaluates all possible combinations of specified parameters,
+    running repeated clustering and computing Element-Centric Consistency (ECC)
+    for each combination. It's purpose is to help identify the optimal parameter set that maximizes
+    clustering stability.
 
     Parameters
     ----------
     clustering_algo : callable
-        Clustering algorithm class or callable (e.g., KMeans).
+        Clustering function or class (e.g., KMeans from scikit-learn).
     parameter_name_seed : str
-        Parameter for the random seed.
+        Name of the parameter used to set the random seed.
     param_grid : dict
-        Dict {param_name: [values]} to try all combinations.
+        Dictionary of parameters and their values, e.g.,
+        {'n_clusters': [2, 3, 4], 'init': ['k-means++', 'random']}.
     n_runs : int, optional (default=30)
-        Number of stochastic runs for each combination.
+        Number of clustering runs per parameter combination.
     verbose : bool, optional (default=False)
-        Print progress if True.
+        If True, prints progress updates.
     **kwargs :
-        Additional arguments for the clustering algorithm.
+        Additional parameters for the clustering algorithm.
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import numpy as np
+    >>> from sklearn.cluster import KMeans
+    >>> np.random.seed(42)
+    >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
+    >>> param_grid = {
+    >>>     'n_clusters': np.arange(2, 5, 1),
+    >>>     'init': ['k-means++', 'random']
+    >>> }
+    >>> parameter_searcher = ParameterSearcher(
+    >>>     clustering_algo=KMeans,
+    >>>     parameter_name_seed='random_state',
+    >>>     param_grid=param_grid,
+    >>>     n_runs=30
+    >>> )
+    >>> results_df, scr_results = parameter_searcher.run(df)
     """
 
     def __init__(
@@ -178,39 +208,21 @@ class ParameterSearcher:
 
     def run(self, data):
         """
-        Run the parameter search on the given data.
+        Runs a parameter grid search by evaluating all possible parameter combinations.
 
         Parameters
         ----------
         data : array-like
-            The dataset on which to run parameter grid search.
+            The dataset on which clustering is performed.
 
         Returns
         -------
         pd.DataFrame
-            Each row represents a combination of parameters and the resulting ECC scores and median ECC.
+            A DataFrame where each row corresponds to a parameter combination 
+            with ECC scores and the median ECC.
         dict
-            Dictionary containing the (StochasticClusteringRunner) results for each combination of parameters tested.
-       
-        
-        Example
-        -------
-        >>> import pandas as pd
-        >>> import numpy as np
-        >>> from sklearn.cluster import KMeans
-        >>> np.random.seed(42)
-        >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
-        >>> param_grid = {
-        >>>     'n_clusters': np.arange(2, 5, 1),
-        >>>     'init': ['k-means++', 'random']
-        >>> }
-        >>> parameter_searcher = ParameterSearcher(
-        >>>     clustering_algo=KMeans,
-        >>>     parameter_name_seed='random_state',
-        >>>     param_grid=param_grid,
-        >>>     n_runs=30
-        >>> )
-        >>> results_df, scr_results = parameter_searcher.run(df)
+            A dictionary containing clustering results (`StochasticClusteringRunner`) 
+            for each parameter combination tested.
         """
         ecc_results = []
         stochastic_clustering_results = {}

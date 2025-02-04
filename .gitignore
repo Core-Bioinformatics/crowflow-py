@@ -2,3 +2,5 @@
 crow.egg-info
 build
 examples/data
+/crow/**/__pycache__/
+__pycache__/

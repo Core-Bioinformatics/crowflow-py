@@ -5,26 +5,52 @@ import numpy as np
 
 class PerturbationRobustnessTester:
     """
-    Test the robustness of the clustering solution to feature perturbations. 
-    User must provide their own perturbation function.
+    Evaluates the robustness of clustering solutions under feature perturbations.
+
+    This class tests how stable clustering results are when features are altered/perturbed.
+    The user must provide a perturbation function, which modifies the dataset before
+    clustering is re-run. Stability is assessed using Element-Centric Similarity (ECS)
+    between the baseline clustering and perturbation-induced clusterings.
 
     Parameters
     ----------
     clustering_algo : callable
-        Clustering function or class (e.g. KMeans from scikit-learn).
+        Clustering function or class (e.g., KMeans from scikit-learn).
     parameter_name_seed : str
-        Name of the parameter used to set the seed.
+        Name of the parameter used to set the random seed.
     perturbation_func : callable
-        A function that takes data and returns a perturbed version of it.
+        Function that modifies input data to introduce perturbations.
     n_perturbations : int, optional (default=10)
         Number of perturbation trials.
     n_runs : int, optional (default=30)
-        Number of runs for repeated stochastic clustering each time.
+        Number of clustering runs per perturbation.
     verbose : bool, optional (default=False)
-        Print progress if True.
+        If True, prints progress updates.
     **kwargs :
         Additional parameters for the clustering algorithm.
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import numpy as np
+    >>> from sklearn.cluster import KMeans
+    >>> np.random.seed(42)
+    >>> def shuffle_features(X):
+    >>>     X_shuffled = X.copy()
+    >>>     for col in X_shuffled.columns:
+    >>>         X_shuffled[col] = np.random.permutation(X_shuffled[col])
+    >>>     return X_shuffled
+    >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
+    >>> perturb_tester = PerturbationRobustnessTester(
+    >>>     clustering_algo=KMeans,
+    >>>     parameter_name_seed='random_state',
+    >>>     perturbation_func=shuffle_features,
+    >>>     n_perturbations=5,
+    >>>     n_runs=30
+    >>> )
+    >>> perturb_results = perturb_tester.run(df)
     """
+
     def __init__(
         self,
         clustering_algo,
@@ -45,42 +71,25 @@ class PerturbationRobustnessTester:
 
     def run(self, data):
         """
-        Run the perturbation robustness test on the given data.
+        Runs the perturbation robustness test on the dataset.
+
+        The baseline clustering is first computed. Then, the dataset undergoes
+        `n_perturbations` perturbations, and clustering is repeated on each
+        perturbed dataset. Stability is assessed using Element-Centric Similarity (ECS)
+        between the baseline and perturbed cluster assignments.
 
         Parameters
         ----------
         data : array-like
-            Original dataset on which to test perturbation robustness.
+            The dataset on which clustering is performed.
 
         Returns
         -------
         dict
-            - 'baseline_majority_labels': Majority labels of the baseline clustering
-            - 'baseline_ecc': element-centric consistency (ECC) of the baseline clustering
-            - 'perturbation_scores': List of element similarity scores for each perturbation
-            - 'mean_score': Mean similarity score across perturbations
-
-        Example
-        -------
-        >>> import pandas as pd
-        >>> import numpy as np
-        >>> from sklearn.cluster import KMeans
-        >>> np.random.seed(42)
-        >>> def shuffle_features(X):
-        >>>     X_shuffled = X.copy()
-        >>>     if isinstance(X, pd.DataFrame):
-        >>>     for col in X_shuffled.columns:
-        >>>         X_shuffled[col] = np.random.permutation(X_shuffled[col])
-        >>>         return X_shuffled
-        >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
-        >>> perturb_tester =  PerturbationRobustnessTester(
-        >>>     clustering_algo=KMeans,
-        >>>     parameter_name_seed='random_state',
-        >>>     perturbation_func=shuffle_features,
-        >>>     n_perturbations=5,
-        >>>     n_runs=30
-        >>> )
-        >>> perturb_results = perturb_tester.run(df)
+            - 'baseline_majority_labels': Majority-vote labels from the baseline clustering.
+            - 'baseline_ecc': Element-Centric Consistency (ECC) score of the baseline clustering.
+            - 'perturbation_el_sim_scores': List of ECS scores between baseline and perturbed clusterings.
+            - 'mean_score': Mean ECS score across all perturbations, indicating overall robustness.
         """
         runner = StochasticClusteringRunner(
             self.clustering_algo,
@@ -97,7 +106,7 @@ class PerturbationRobustnessTester:
         perturbation_el_sim_scores = []
         for i in range(self.n_perturbations):
             if self.verbose:
-                print(f"Perturbation {i+1}/{self.n_perturbations}")
+                print(f"Perturbation {i + 1}/{self.n_perturbations}")
             perturbed_data = self.perturbation_func(data)
 
             # Run clustering again on perturbed data

@@ -5,36 +5,53 @@ import numpy as np
 
 class GeneticAlgorithmFeatureSelector:
     """
-    Use a genetic algorithm to find the subset of features that yields the most stable clustering over repeated runs.
+    Selects the most stable subset of features using a genetic algorithm.
+
+    This class uses a genetic algorithm to iteratively optimize feature selection for 
+    clustering stability. It repeatedly applies stochastic clustering with different 
+    feature subsets and evaluates stability using Element-Centric Consistency (ECC). 
+    The algorithm evolves through selection, crossover, and mutation, converging on 
+    the feature set that maximizes clustering robustness.
 
     Parameters
     ----------
     clustering_algo : callable
-        Clustering function or class (e.g. KMeans from scikit-learn).
+        Clustering function or class (e.g., KMeans from scikit-learn).
     parameter_name_seed : str
-        Seed parameter name for the clustering algorithm
+        Name of the parameter used to set the random seed.
     n_runs : int, optional (default=30)
-        Number of runs for repeated_stochastic_clustering
+        Number of repeated clustering runs per feature subset.
     population_size : int, optional (default=20)
-        Number of candidate subsets in each generation
+        Number of feature subsets in each generation.
     generations : int, optional (default=50)
-        Number of generations to evolve through
+        Number of generations to evolve.
     tournament_selection_k : int, optional (default=3)
-        Tournament size for selection
+        Tournament size for parent selection.
     mutation_rate : float, optional (default=0.01)
-        Probability of flipping each gene (feature bit) in an offspring
+        Probability of flipping a feature selection bit in offspring.
     crossover_rate : float, optional (default=0.8)
-        Probability of performing crossover on a pair
+        Probability of performing crossover between two parents.
     elite_size : int, optional (default=2)
-        Number of top candidates to carry to next generation
+        Number of top-performing subsets preserved per generation.
     n_generations_no_change : int, optional (default=10)
-        Number of generations without improvement before stopping
+        Early stopping criterion: generations without improvement.
     verbose : bool, optional (default=False)
-        Whether to print progress
+        If True, prints progress updates.
     **kwargs :
-        Additional parameters for clustering_algo (fixed)
-    """
+        Additional parameters for the clustering algorithm.
 
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import numpy as np
+    >>> from sklearn.cluster import KMeans
+    >>> np.random.seed(42)
+    >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
+    >>> ga_fs = GeneticAlgorithmFeatureSelector(KMeans, 'random_state', verbose=True, n_generations_no_change=5)
+    >>> ga_results = ga_fs.run(df)
+    >>> print("Best Features:", ga_results["best_features"])
+    >>> print("Best ECC Score:", ga_results["best_ecc"])
+    """
     def __init__(
         self,
         clustering_algo,
@@ -66,31 +83,25 @@ class GeneticAlgorithmFeatureSelector:
 
     def run(self, data):
         """
-        Run the genetic algorithm feature selection on the given data.
+        Runs the genetic algorithm for feature selection.
+
+        The method initializes a population of feature subsets, evaluates their stability 
+        via repeated clustering, and evolves them using genetic operators (selection, 
+        crossover, mutation). The best subset maximizes Element-Centric Consistency (ECC), 
+        ensuring robust clustering.
 
         Parameters
         ----------
         data : array-like or DataFrame
-            Dataset of shape (n_samples, n_features).
+            Input dataset of shape (n_samples, n_features).
 
         Returns
         -------
         dict
-            A dictionary with:
-            - 'best_features': names of the best feature subset found
-            - 'best_ecc': The highest median element-centric consistency (ECC) achieved
-            - 'history': DataFrame tracking best fitness by generation
-            - 'best_fitness_scr_result': The scr_result (StochasticClusteringRunner) corresponding to the best fitness
-
-        Example
-        -------
-        >>> import pandas as pd
-        >>> import numpy as np
-        >>> from sklearn.cluster import KMeans
-        >>> np.random.seed(42)
-        >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
-        >>> ga_fs = GeneticAlgorithmFeatureSelector(KMeans, 'random_state', verbose=True, n_generations_no_change=5)
-        >>> ga_results = ga_fs.run(df)
+            - 'best_features': Names of the most stable feature subset.
+            - 'best_ecc': Highest median ECC achieved during evolution.
+            - 'history': DataFrame tracking best fitness over generations.
+            - 'best_fitness_scr_result': Clustering results for the optimal feature set.
         """
         # Convert to numpy if DataFrame
         if isinstance(data, pd.DataFrame):

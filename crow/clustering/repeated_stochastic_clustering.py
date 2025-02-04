@@ -10,22 +10,38 @@ from collections import Counter
 
 class StochasticClusteringRunner:
     """
-    Perform repeated stochastic clustering with different seeds.
+    Repeats stochastic clustering multiple times to assess stability.
+
+    This class runs a clustering algorithm multiple times with different random seeds 
+    and evaluates the stability of results using Element-Centric Consistency (ECC). 
+    It identifies in an element-wise precision the stability of clustering results and 
+    provides a consensus labeling through majority voting.
 
     Parameters
     ----------
     clustering_algo : callable
-        Clustering function or class (e.g. KMeans from scikit-learn).
+        Clustering function or class (e.g., KMeans from scikit-learn).
     parameter_name_seed : str
-        Name of the parameter used to set the seed.
+        Name of the parameter used to set the random seed.
     n_runs : int, optional (default=30)
-        Number of clustering runs.
+        Number of times the clustering is repeated.
     verbose : bool, optional (default=False)
-        Print progress if True.
+        If True, prints progress updates.
     **kwargs :
         Additional parameters for the clustering algorithm.
-    """
 
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import numpy as np
+    >>> from sklearn.cluster import KMeans
+    >>> np.random.seed(42)
+    >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
+    >>> runner = StochasticClusteringRunner(KMeans, "random_state", n_runs=30, verbose=True, n_clusters=3)
+    >>> results = runner.run(df)
+    >>> print("Majority Voting Labels:", results["majority_voting_labels"])
+    >>> print("ECC:", results["ecc"])
+    """
     def __init__(
         self, clustering_algo, parameter_name_seed, n_runs=30, verbose=False, **kwargs
     ):
@@ -51,7 +67,12 @@ class StochasticClusteringRunner:
 
     def run(self, data):
         """
-        Run repeated stochastic clustering on the given data.
+        Runs repeated stochastic clustering and evaluates stability.
+
+        This method performs clustering multiple times with different random seeds, 
+        computes element-wise stability using Element-Centric Consistency (ECC), 
+        and determines a consensus labeling for each element through majority voting (after 
+        reconciling the labels using majority voting).
 
         Parameters
         ----------
@@ -61,24 +82,13 @@ class StochasticClusteringRunner:
         Returns
         -------
         dict
-            A dictionary with:
-            - 'partitions': list of partitions from each run
-            - 'partition_frequencies': dictionary mapping partition -> frequency
-            - 'majority_voting_labels': consensus labels from majority voting
-            - 'ecc': element-centric consistency (ECC) values
-            - 'seeds': the list of seeds used
-
-
-        Example
-        -------
-        >>> import pandas as pd
-        >>> import numpy as np
-        >>> from sklearn.cluster import KMeans
-        >>> np.random.seed(42)
-        >>> df = pd.DataFrame(np.random.normal(size=(200, 10)), columns=[f"feature_{i+1}" for i in range(10)])
-        >>> repeated_clustering_func = StochasticClusteringRunner(KMeans, "random_state", n_runs=30, verbose=False)
-        >>> results_repeated_clustering = repeated_clustering_func.run(df)
+            - 'partitions': List of partitions (clustering assignments) from each run.
+            - 'partition_frequencies': Dictionary mapping partitions to their occurrence frequency.
+            - 'majority_voting_labels': Final consensus labels based on majority voting.
+            - 'ecc': Element-centric consistency (ECC) scores indicating clustering stability.
+            - 'seeds': The list of random seeds used.
         """
+
         # Generate seeds
         seeds = np.arange(100, 100 + self.n_runs * 100, 100)
         partitions_list = []
