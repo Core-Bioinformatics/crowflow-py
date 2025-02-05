@@ -1,5 +1,7 @@
 # Crow
-![logo_crow](https://github.com/user-attachments/assets/313177e6-f41d-4ee1-983d-50ce6bd4e719)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/313177e6-f41d-4ee1-983d-50ce6bd4e719">
+</p>
 
 Crow is a Python package designed for assessing clustering stability through repeated stochastic clustering. It is compatible with any clustering algorithm that outputs labels or implements a fit or fit_predict method, provided it includes stochasticity (i.e., allows setting a seed or random_state). By running clustering multiple times with different seeds, Crow quantifies clustering consistency using element-centric similarity (ECS) and element-centric consistency (ECC), offering insights into the robustness and reproducibility of cluster assignments. The package enables users to optimize feature subsets, fine-tune clustering parameters, and evaluate clustering robustness against perturbations.
 
