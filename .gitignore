@@ -1,6 +1,6 @@
 .venv
-crow.egg-info
+crowflow.egg-info
 build
 examples/data
-/crow/**/__pycache__/
+/crowflow/**/__pycache__/
 __pycache__/

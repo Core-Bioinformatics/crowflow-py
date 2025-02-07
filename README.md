@@ -1,11 +1,11 @@
-# Crow
+# crowflow
 <p align="center">
   <img src="https://github.com/user-attachments/assets/313177e6-f41d-4ee1-983d-50ce6bd4e719">
 </p>
 
-Crow is a Python package designed for assessing clustering stability through repeated stochastic clustering. It is compatible with any clustering algorithm that outputs labels or implements a fit or fit_predict method, provided it includes stochasticity (i.e., allows setting a seed or random_state). By running clustering multiple times with different seeds, Crow quantifies clustering consistency using element-centric similarity (ECS) and element-centric consistency (ECC), offering insights into the robustness and reproducibility of cluster assignments. The package enables users to optimize feature subsets, fine-tune clustering parameters, and evaluate clustering robustness against perturbations.
+`crowflow` is a Python package designed for assessing clustering stability through repeated stochastic clustering. It is compatible with any clustering algorithm that outputs labels or implements a fit or fit_predict method, provided it includes stochasticity (i.e., allows setting a seed or random_state). By running clustering multiple times with different seeds, `crowflow` quantifies clustering consistency using element-centric similarity (ECS) and element-centric consistency (ECC), offering insights into the robustness and reproducibility of cluster assignments. The package enables users to optimize feature subsets, fine-tune clustering parameters, and evaluate clustering robustness against perturbations.
 
-Crow generalizes the ClustAssessPy package, which focuses on parameter selection for community-detection clustering in single-cell analysis. It extends this approach to any clustering task, enabling a data-driven identification of robust and reproducible clustering solutions across diverse applications.
+`crowflow` generalizes the ClustAssessPy package, which focuses on parameter selection for community-detection clustering in single-cell analysis. It extends this approach to any clustering task, enabling a data-driven identification of robust and reproducible clustering solutions across diverse applications.
 
 ## Class Summaries
 - `StochasticClusteringRunner`: Runs a stochastic clustering algorithm multiple times with different random seeds and evaluates the stability of results using ECC. It identifies in an element-wise precision the stability of clustering results and provides majority voting label.
@@ -17,7 +17,7 @@ Crow generalizes the ClustAssessPy package, which focuses on parameter selection
 
 ## Installation
 
-Crow requires Python 3.7 or newer.
+`crowflow` requires Python 3.7 or newer.
 
 ### Dependencies
 
@@ -31,19 +31,19 @@ Crow requires Python 3.7 or newer.
 
 ### User Installation
 
-We recommend that you download `crow` on a virtual environment (venv or Conda).
+We recommend that you download `crowflow` on a virtual environment (venv or Conda).
 
 ```sh
-pip install crow
+pip install crowflow
 ```
 
 ## Tutorials
 
 The package can be applied to any clustering task (as long as the clustering algorithm used is stochastic). 
 
-In the [cuomo example](examples/cuomo_application.ipynb) we show how to use `crow` with GaussianMixture from `scikit-learn` to initially assess clustering stability of the default parameter values. We then attempt to identify a clustering configuration (hyperparameter values) that would result in more stable clustering results and finally further optimise that configuration by feature selection. 
+In the [cuomo example](examples/cuomo_application.ipynb) we show how to use `crowflow` with GaussianMixture from `scikit-learn` to initially assess clustering stability of the default parameter values. We then attempt to identify a clustering configuration (hyperparameter values) that would result in more stable clustering results and finally further optimise that configuration by feature selection. 
 
-The [fine food reviews example](examples/fine_food_reviews.ipynb) shows how to integrate cutting-edge models (embedding, 4o-mini) from OpenAI and KMeans from `scikit-learn` with `crow`to extract meaningful insights from the identified robust clusters, and generate informative labels based on these insights.
+The [fine food reviews example](examples/fine_food_reviews.ipynb) shows how to integrate cutting-edge models (embedding, 4o-mini) from OpenAI and KMeans from `scikit-learn` with `crowflow`to extract meaningful insights from the identified robust clusters, and generate informative labels based on these insights.
 
 ## License
 
