@@ -7,10 +7,10 @@ class GeneticAlgorithmFeatureSelector:
     """
     Selects the most stable subset of features using a genetic algorithm.
 
-    This class uses a genetic algorithm to iteratively optimize feature selection for 
-    clustering stability. It repeatedly applies stochastic clustering with different 
-    feature subsets and evaluates stability using Element-Centric Consistency (ECC). 
-    The algorithm evolves through selection, crossover, and mutation, converging on 
+    This class uses a genetic algorithm to iteratively optimize feature selection for
+    clustering stability. It repeatedly applies stochastic clustering with different
+    feature subsets and evaluates stability using Element-Centric Consistency (ECC).
+    The algorithm evolves through selection, crossover, and mutation, converging on
     the feature set that maximizes clustering robustness.
 
     Parameters
@@ -37,6 +37,9 @@ class GeneticAlgorithmFeatureSelector:
         Early stopping criterion: generations without improvement.
     verbose : bool, optional (default=False)
         If True, prints progress updates.
+    labels_name : str, optional
+        Name of the attribute in the clustering result that contains labels.
+        If None, we assume the function directly returns labels.
     **kwargs :
         Additional parameters for the clustering algorithm.
 
@@ -52,6 +55,7 @@ class GeneticAlgorithmFeatureSelector:
     >>> print("Best Features:", ga_results["best_features"])
     >>> print("Best ECC Score:", ga_results["best_ecc"])
     """
+
     def __init__(
         self,
         clustering_algo,
@@ -65,6 +69,7 @@ class GeneticAlgorithmFeatureSelector:
         elite_size=2,
         n_generations_no_change=10,
         verbose=False,
+        labels_name=None,
         **kwargs,
     ):
         np.random.seed(42)
@@ -79,15 +84,16 @@ class GeneticAlgorithmFeatureSelector:
         self.elite_size = elite_size
         self.n_generations_no_change = n_generations_no_change
         self.verbose = verbose
+        self.labels_name = labels_name
         self.kwargs = kwargs
 
     def run(self, data):
         """
         Runs the genetic algorithm for feature selection.
 
-        The method initializes a population of feature subsets, evaluates their stability 
-        via repeated clustering, and evolves them using genetic operators (selection, 
-        crossover, mutation). The best subset maximizes Element-Centric Consistency (ECC), 
+        The method initializes a population of feature subsets, evaluates their stability
+        via repeated clustering, and evolves them using genetic operators (selection,
+        crossover, mutation). The best subset maximizes Element-Centric Consistency (ECC),
         ensuring robust clustering.
 
         Parameters
@@ -127,6 +133,7 @@ class GeneticAlgorithmFeatureSelector:
                 self.parameter_name_seed,
                 n_runs=self.n_runs,
                 verbose=False,
+                labels_name=self.labels_name,
                 **self.kwargs,
             )
             results = runner.run(subset_data)

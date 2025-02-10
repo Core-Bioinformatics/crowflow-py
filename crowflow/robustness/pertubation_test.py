@@ -26,6 +26,9 @@ class PerturbationRobustnessTester:
         Number of clustering runs per perturbation.
     verbose : bool, optional (default=False)
         If True, prints progress updates.
+    labels_name : str, optional
+        Name of the attribute in the clustering result that contains labels.
+        If None, we assume the function directly returns labels.
     **kwargs :
         Additional parameters for the clustering algorithm.
 
@@ -59,6 +62,7 @@ class PerturbationRobustnessTester:
         n_perturbations=10,
         n_runs=30,
         verbose=False,
+        labels_name=None,
         **kwargs,
     ):
         self.clustering_algo = clustering_algo
@@ -67,6 +71,7 @@ class PerturbationRobustnessTester:
         self.n_perturbations = n_perturbations
         self.n_runs = n_runs
         self.verbose = verbose
+        self.labels_name = labels_name
         self.kwargs = kwargs
 
     def run(self, data):
@@ -96,6 +101,7 @@ class PerturbationRobustnessTester:
             self.parameter_name_seed,
             n_runs=self.n_runs,
             verbose=self.verbose,
+            labels_name=self.labels_name,
             **self.kwargs,
         )
 

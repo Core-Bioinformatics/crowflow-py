@@ -24,6 +24,9 @@ class KFoldClusteringValidator:
         Number of repeated runs per clustering iteration.
     verbose : bool, optional (default=False)
         If True, prints progress updates.
+    labels_name : str, optional
+        Name of the attribute in the clustering result that contains labels.
+        If None, we assume the function directly returns labels.
     **kwargs :
         Additional parameters for the clustering algorithm.
 
@@ -52,6 +55,7 @@ class KFoldClusteringValidator:
         k_folds=5,
         n_runs=30,
         verbose=False,
+        labels_name=None,
         **kwargs,
     ):
         self.clustering_algo = clustering_algo
@@ -59,6 +63,7 @@ class KFoldClusteringValidator:
         self.k_folds = k_folds
         self.n_runs = n_runs
         self.verbose = verbose
+        self.labels_name = labels_name
         self.kwargs = kwargs
 
     def run(self, data):
@@ -90,6 +95,7 @@ class KFoldClusteringValidator:
             self.parameter_name_seed,
             n_runs=self.n_runs,
             verbose=self.verbose,
+            labels_name=self.labels_name,
             **self.kwargs,
         )
 

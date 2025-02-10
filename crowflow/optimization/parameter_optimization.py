@@ -26,6 +26,9 @@ class ParameterOptimizer:
         Number of clustering runs per parameter setting.
     verbose : bool, optional (default=False)
         If True, prints progress updates.
+    labels_name : str, optional
+        Name of the attribute in the clustering result that contains labels.
+        If None, we assume the function directly returns labels.
     **kwargs :
         Additional parameters for the clustering algorithm.
 
@@ -52,6 +55,7 @@ class ParameterOptimizer:
         parameters_optimize_dict,
         n_runs=30,
         verbose=False,
+        labels_name=None,
         **kwargs,
     ):
         self.clustering_algo = clustering_algo
@@ -59,6 +63,7 @@ class ParameterOptimizer:
         self.parameters_optimize_dict = parameters_optimize_dict
         self.n_runs = n_runs
         self.verbose = verbose
+        self.labels_name = labels_name
         self.kwargs = kwargs
         self._validate_clustering_algo()
 
@@ -105,6 +110,7 @@ class ParameterOptimizer:
                     self.parameter_name_seed,
                     n_runs=self.n_runs,
                     verbose=False,
+                    labels_name=self.labels_name,
                     **{param_name: val, **self.kwargs},
                 )
 
@@ -152,6 +158,9 @@ class ParameterSearcher:
         Number of clustering runs per parameter combination.
     verbose : bool, optional (default=False)
         If True, prints progress updates.
+    labels_name : str, optional
+        Name of the attribute in the clustering result that contains labels.
+        If None, we assume the function directly returns labels.
     **kwargs :
         Additional parameters for the clustering algorithm.
 
@@ -182,6 +191,7 @@ class ParameterSearcher:
         param_grid,
         n_runs=30,
         verbose=False,
+        labels_name=None,
         **kwargs,
     ):
         self.clustering_algo = clustering_algo
@@ -192,6 +202,7 @@ class ParameterSearcher:
         self.kwargs = kwargs
         self.param_combinations = list(product(*param_grid.values()))
         self.param_names = list(param_grid.keys())
+        self.labels_name = labels_name
         self._validate_clustering_algo()
 
     def _validate_clustering_algo(self):
@@ -237,6 +248,7 @@ class ParameterSearcher:
                 self.parameter_name_seed,
                 n_runs=self.n_runs,
                 verbose=False,
+                labels_name=self.labels_name,
                 **{**self.kwargs, **param_dict},
             )
             result = runner.run(data)

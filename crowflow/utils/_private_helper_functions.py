@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 from collections import Counter
 
-def _get_clustering_labels(data, clustering_algo, algo_params):
+def _get_clustering_labels(data, clustering_algo, algo_params, labels_name=None):
     if hasattr(clustering_algo, "fit_predict"):
         # For scikit-learn-style algorithms with fit_predict method
         model = clustering_algo(**algo_params)
@@ -13,11 +13,27 @@ def _get_clustering_labels(data, clustering_algo, algo_params):
         model.fit(data)
         return model.labels_
     elif callable(clustering_algo):
-        return clustering_algo(data, **algo_params)
+        result = clustering_algo(data, **algo_params)  # Run clustering
+
+        # Extract labels from Leiden or other clustering outputs
+        if labels_name is None:
+            return list(result)  # Assume the function directly returns labels
+        elif isinstance(labels_name, str):
+            if hasattr(result, labels_name):
+                return getattr(result, labels_name)  # Extract specified attribute
+            else:
+                raise ValueError(
+                    f"Clustering result does not have attribute `{labels_name}`."
+                )
+        else:
+            raise ValueError(
+                "`labels_name` must be a string or None."
+            )
     else:
         raise ValueError(
             "Provided clustering_algo must be callable or have a 'fit' or 'fit_predict' method."
         )
+
 
 
 def _reconcile_partitions_and_majority_voting(partition_frequencies):

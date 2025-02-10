@@ -12,9 +12,9 @@ class StochasticClusteringRunner:
     """
     Repeats stochastic clustering multiple times to assess stability.
 
-    This class runs a clustering algorithm multiple times with different random seeds 
-    and evaluates the stability of results using Element-Centric Consistency (ECC). 
-    It identifies in an element-wise precision the stability of clustering results and 
+    This class runs a clustering algorithm multiple times with different random seeds
+    and evaluates the stability of results using Element-Centric Consistency (ECC).
+    It identifies in an element-wise precision the stability of clustering results and
     provides a consensus labeling through majority voting.
 
     Parameters
@@ -27,6 +27,9 @@ class StochasticClusteringRunner:
         Number of times the clustering is repeated.
     verbose : bool, optional (default=False)
         If True, prints progress updates.
+    labels_name : str, optional
+        Name of the attribute in the clustering result that contains labels.
+        If None, we assume the function directly returns labels.
     **kwargs :
         Additional parameters for the clustering algorithm.
 
@@ -42,13 +45,21 @@ class StochasticClusteringRunner:
     >>> print("Majority Voting Labels:", results["majority_voting_labels"])
     >>> print("ECC:", results["ecc"])
     """
+
     def __init__(
-        self, clustering_algo, parameter_name_seed, n_runs=30, verbose=False, **kwargs
+        self,
+        clustering_algo,
+        parameter_name_seed,
+        n_runs=30,
+        verbose=False,
+        labels_name=None,
+        **kwargs,
     ):
         self.clustering_algo = clustering_algo
         self.parameter_name_seed = parameter_name_seed
         self.n_runs = n_runs
         self.verbose = verbose
+        self.labels_name = labels_name
         self.kwargs = kwargs
         self._validate_clustering_algo()
 
@@ -69,9 +80,9 @@ class StochasticClusteringRunner:
         """
         Runs repeated stochastic clustering and evaluates stability.
 
-        This method performs clustering multiple times with different random seeds, 
-        computes element-wise stability using Element-Centric Consistency (ECC), 
-        and determines a consensus labeling for each element through majority voting (after 
+        This method performs clustering multiple times with different random seeds,
+        computes element-wise stability using Element-Centric Consistency (ECC),
+        and determines a consensus labeling for each element through majority voting (after
         reconciling the labels using majority voting).
 
         Parameters
@@ -101,7 +112,7 @@ class StochasticClusteringRunner:
             labels = tuple(
                 int(label)
                 for label in _get_clustering_labels(
-                    data, self.clustering_algo, algo_params
+                    data, self.clustering_algo, algo_params, self.labels_name
                 )
             )
             partitions_list.append(labels)
