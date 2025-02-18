@@ -4,3 +4,4 @@ build
 examples/data
 /crowflow/**/__pycache__/
 __pycache__/
+dist

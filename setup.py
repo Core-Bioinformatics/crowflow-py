@@ -7,8 +7,9 @@ setup(
     name='crowflow',
     version=__version__,
     packages=find_packages(),
-    description='Python package for evaluation of repeated stochastic clustering.',
+    description='Python package for evaluating clustering stability through the use of repeated stochastic clustering and element-centric evaluation metrics.',
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     install_requires=[
         'numpy',
         'matplotlib',
@@ -18,9 +19,10 @@ setup(
         'plotnine',
         'ClustAssessPy'
     ],
+    url='https://github.com/Core-Bioinformatics/crowflow-py',
     license='MIT',
-    author="Rafael Kollyfas",
-    author_email="rk720@cam.ac.uk",
+    author='Rafael Kollyfas',
+    author_email='rk720@cam.ac.uk',
     python_requires='>=3.7',
     keywords=['clustering', 'evaluation', 'stability', 'assessment', 'machine learning'],
     zip_safe=False,
