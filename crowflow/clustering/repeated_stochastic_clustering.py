@@ -53,6 +53,7 @@ class StochasticClusteringRunner:
         n_runs=30,
         verbose=False,
         labels_name=None,
+        seeds=None, 
         **kwargs,
     ):
         self.clustering_algo = clustering_algo
@@ -62,6 +63,17 @@ class StochasticClusteringRunner:
         self.labels_name = labels_name
         self.kwargs = kwargs
         self._validate_clustering_algo()
+
+        if seeds is not None:
+            seeds = np.asarray(seeds)
+            if seeds.ndim != 1:
+                raise ValueError("`seeds` must be a 1-D iterable of integers.")
+            if not np.isfinite(seeds).all():
+                raise ValueError("All seeds must be finite numbers.")
+            self.seeds = seeds.astype(int)
+            self.n_runs = len(self.seeds)
+        else:
+            self.seeds = np.arange(100, 100 + self.n_runs * 100, 100)
 
     def _validate_clustering_algo(self):
         try:
@@ -75,6 +87,7 @@ class StochasticClusteringRunner:
                 f"The algorithm does not accept a '{self.parameter_name_seed}' parameter. "
                 f"Ensure it is a stochastic algorithm (can set random seed)."
             )
+       
 
     def run(self, data):
         """
@@ -99,13 +112,10 @@ class StochasticClusteringRunner:
             - 'ecc': Element-centric consistency (ECC) scores indicating clustering stability.
             - 'seeds': The list of random seeds used.
         """
-
-        # Generate seeds
-        seeds = np.arange(100, 100 + self.n_runs * 100, 100)
         partitions_list = []
 
         # Run the clustering repeatedly
-        for seed in seeds:
+        for seed in self.seeds:
             if self.verbose:
                 print(f"  Seed={seed}")
             algo_params = {**self.kwargs, self.parameter_name_seed: int(seed)}
@@ -133,5 +143,5 @@ class StochasticClusteringRunner:
             "partition_frequencies": partition_frequencies,
             "majority_voting_labels": majority_voting_labels,
             "ecc": ecc,
-            "seeds": seeds,
+            "seeds": self.seeds,
         }
