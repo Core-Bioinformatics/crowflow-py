@@ -250,7 +250,7 @@ def plot_heatmap(
         ggplot(heatmap_data, aes(x=key2, y=key1, fill="median_ecc"))
         + geom_tile(color="white")
         + scale_fill_cmap(name="ECC")
-        + theme_minimal()
+        + theme_classic()
         + labs(
             title="Heatmap of Median ECC",
             x=key2,
