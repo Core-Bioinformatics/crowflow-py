@@ -3,9 +3,8 @@
   <img src="https://github.com/user-attachments/assets/313177e6-f41d-4ee1-983d-50ce6bd4e719">
 </p>
 
-[![PyPI Downloads](https://static.pepy.tech/personalized-badge/crowflow?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=BLUE&left_text=downloads)](https://pepy.tech/projects/crowflow)
-
-[![PyPI Downloads](https://static.pepy.tech/personalized-badge/crowflow?period=monthly&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=BLUE&left_text=downloads)](https://pepy.tech/projects/crowflow)
+[![Downloads](https://static.pepy.tech/badge/crowflow)](https://pepy.tech/project/crowflow)
+[![Downloads](https://static.pepy.tech/badge/crowflow/month)](https://pepy.tech/project/crowflow)
 
 `crowflow` is a Python package designed for assessing clustering stability through repeated stochastic clustering. It is compatible with any clustering algorithm that outputs labels or implements a `fit` or `fit_predict` method, provided it includes stochasticity (i.e., allows setting a seed or `random_state`). By running clustering multiple times with different seeds, `crowflow` quantifies clustering consistency using element-centric similarity (ECS) and element-centric consistency (ECC), offering insights into the robustness and reproducibility of cluster assignments. The package enables users to optimize feature subsets, fine-tune clustering parameters, and evaluate clustering robustness against perturbations.
 
